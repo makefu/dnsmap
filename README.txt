@@ -2,7 +2,7 @@ DNSMAP README FILE
 
 INTRODUCTION
 
-dnsmap was originally released in back in 2006 and was inspired by the
+dnsmap was originally released back in 2006 and was inspired by the
 fictional story "The Thief No One Saw" by Paul Craig, which can be found
 in the book "Stealing the Network - How to 0wn the Box"
 
@@ -50,7 +50,7 @@ Example of manual installation:
 
 # cp ./dnsmap /usr/local/bin/dnsmap
 
-If you wish to bruteforce several target domains in a bulk fashion, you can use the
+If you wish to bruteforce several target domains in bulk fashion, you can use the
 included dnsmap-bulk.sh script. Just copy the script to /usr/local/bin/ so you can 
 call it from any location. i.e.:
 
