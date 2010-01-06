@@ -20,8 +20,6 @@ If you are interested in researching stealth computer intrusion techniques,
 I suggest reading this excellent (and fun) chapter which you can find for
 *free* on the web:
 
-http://www.google.com/search?q=%22The+Thief+No+One+Saw%22+%22Paul+Craig%22
-http://www.syngress.com/book_catalog/249_STL_NTW/sample.pdf
 http://www.ethicalhacker.net/content/view/45/2/
 
 I'm happy to say that dnsmap was included in Backtrack 2 and 3 - although the version
