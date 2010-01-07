@@ -1,7 +1,7 @@
 XX/01/2010: dnsmap 0.24 released at www.gnucitizen.org
 * IPv6 support
 * Makefile included
-* delay option (-d) added. This is useful in cases in which dnsmap is killing your bandwidth
+* delay option (-d) added. This is useful in cases where dnsmap is killing your bandwidth
 * changes made to make dnsmap compatible with OpenDNS
 * disclosure of internal IP addresses (RFC 1918) are reported
 * updated built-in wordlist
