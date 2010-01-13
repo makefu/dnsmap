@@ -1,4 +1,6 @@
 * multi-threading - use pthread.h?
+* false positives bug when wildcarded domain returns more than one IP address on non-existing subdomains
+	test domain: proboards.com
 * allow using a customized list of DNS server to share network load
 * allow using DNS server supplied on the command line
 * clever subdomain brute-force to discover domains with wildcards enabled
