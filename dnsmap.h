@@ -19,7 +19,7 @@
 
 #define MAXSUBSIZE 	100
 #define MAXSTRSIZE 	200
-#define BANNER 		"dnsmap 0.24 - DNS Network Mapper by pagvac (gnucitizen.org)\n\n"
+#define BANNER 		"dnsmap 0.25 - DNS Network Mapper by pagvac (gnucitizen.org)\n\n"
 #define USAGE 		"usage: dnsmap <target-domain> [options]\noptions:\n"\
 			"-w <wordlist-file>\n-r <regular-results-file>\n-c <csv-results-file>\n"\
 			"-d <delay-milliseconds>\n"
@@ -84,6 +84,7 @@ char sub[][MAXSUBSIZE]=
 "catalogue",
 "chat",
 "chimera",
+"chronos", // time server?
 "citrix",
 "classroom",
 "clientes",
@@ -192,7 +193,7 @@ char sub[][MAXSUBSIZE]=
 "marketing",
 "member",
 "members",
-"mercury",
+"mercury", // MX server?
 "meta",
 "meta01",
 "meta02",
