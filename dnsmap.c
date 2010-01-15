@@ -1,6 +1,6 @@
 /*
  * ** dnsmap - DNS Network Mapper by pagvac
- * ** Copyright (C) 2009 gnucitizen.org
+ * ** Copyright (C) 2010 gnucitizen.org
  * **
  * ** This program is free software; you can redistribute it and/or modify
  * ** it under the terms of the GNU General Public License as published by
@@ -243,14 +243,7 @@ int main(int argc, char *argv[]) {
 				// ipv6 code modded from www.kame.net
 			} // end of if conditional
 			host=gethostbyname(dom);
-			/*
-					inet_ntop(p->ai_family, addr, ipv6str, sizeof ipv6str);
-			       		printf("%s address #%d: %s\n",ipver,k+1,ipv6str);
-			*/
-			//inet_ntop(p->ai_family, addr, ipv6str, sizeof ipv6str);
-			//inet_ntop(AF_INET,&host->h_addr_list[0],ipstr,sizeof ipstr);
 			if(host && !isIPblacklisted(inet_ntoa(*((struct in_addr *)host->h_addr_list[0])))) {
-			//if(host && !isIPblacklisted(ipstr)) {
 				for(j=0;host->h_addr_list[j];++j) {
 					// TEST!!!
 					sprintf(ipstr,inet_ntoa(*((struct in_addr *)host->h_addr_list[j])),"%s");
@@ -266,10 +259,7 @@ int main(int argc, char *argv[]) {
 						}
 						printf("IP address #%d: %s\n", j+1,ipstr);
 						++ipCount;
-					//}
-						//printf("IP address #%d: %s\n", j+1, 
-						//	inet_ntoa(*((struct in_addr *)host->h_addr_list[j])));
-						// TEST!!
+
 						if(isPrivateIP(ipstr)) {
 						//if(isPrivateIP(inet_ntoa(*((struct in_addr *)host->h_addr_list[j])))) {
 							printf("%s",INTIPWARN);
@@ -371,7 +361,7 @@ int main(int argc, char *argv[]) {
 					if(csvResults)
 						fprintf(fpCsvLogs,"\n");	
 
-		    			//freeaddrinfo(res); // free the linked list
+		    			freeaddrinfo(res); // free the linked list
 					// ipv6 code modded from www.kame.net
 				} // end of if conditional
 
@@ -398,8 +388,6 @@ int main(int argc, char *argv[]) {
 							++ipCount;
 						}
 
-						//printf("IP address #%d: %s\n",j+1,
-						//	inet_ntoa(*((struct in_addr *)host->h_addr_list[j])));
 						if(isPrivateIP(ipstr) && strcmp(falsePosIpstr,ipstr)) {
 							printf("%s",INTIPWARN);
 							++intIPcount;						
@@ -562,6 +550,10 @@ unsigned short int isValidDomain(char *d) {
 	char *tld;
 	size_t len;
 
+        char strTmp[30]={'\0'},s[MAXSTRSIZE]={'\0'}, ipstr[INET_ADDRSTRLEN];
+        unsigned short int j=0,n=0,max=0;
+	struct hostent *h;
+
 	if(strlen(d)<4) // smallest possible domain provided. e.g. a.pl
 		return 0;
 	if(!strstr(d,".")) // target domain must have at least one dot. e.g. target.va, branch.target.va
@@ -577,7 +569,7 @@ unsigned short int isValidDomain(char *d) {
 		printf("dom: %s tld: %s\n",d,tld);
 	#endif
 	if((strlen(tld)<2) || (strlen(tld)>6)) // tld must be between 2-6 char. e.g. .museum, .uk
-		return 0;
+		return FALSE;
 
 	// valid domain can only contain digits, letters, dot (.) and dash symbol (-)
 	len = strlen(d);
@@ -589,7 +581,48 @@ unsigned short int isValidDomain(char *d) {
 			return 0;
 	}
 
-	return 1;
+        srand(time(NULL));
+	max=rand()%20;
+	// max should be between 10 and 20
+	if(max<10)
+		max=max+(10-max);
+	
+	// generate up to random 20 digits-long subdomain
+	// e.g. 06312580442146732554
+ 
+	for(i=0;i<max;++i) {
+                n=rand()%10;
+                sprintf(strTmp, "%d", n);
+                if(i==0)
+                        strncpy(s,strTmp,MAXSTRSIZE-strlen(s)-1);
+                else
+                        strncat(s,strTmp,MAXSTRSIZE-strlen(s)-1);
+        }
+	strncat(s,".",MAXSTRSIZE-strlen(s)-1);
+	strncat(s, d,MAXSTRSIZE-strlen(s)-1);
+	#if DEBUG
+		printf("random subdomain for wildcard testing: %s\n",s);
+	#endif
+	
+	// random subdomain resolves, thus wildcards are enabled
+	h=gethostbyname(s);
+	if(h) {
+		for(j=0;h->h_addr_list[j];++j) {
+			sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[j])),"%s");	                                  
+
+		}
+		if(j>1) {
+			#if DEBUG
+				// some domains like proboards.com return more than 1 IP address
+				// when resolving random subdomains (wildcards are enabled)
+				printf("wildcard domain\'s number of IP address(es): %d"
+					" (this causes dnsmap to produce false positives)\n",j);
+			#endif
+			return FALSE;
+		}
+	}
+
+	return TRUE;
 
 }
 
