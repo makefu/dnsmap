@@ -1,6 +1,6 @@
 /*
  * ** dnsmap - DNS Network Mapper by pagvac
- * ** Copyright (C) 2009 gnucitizen.org
+ * ** Copyright (C) 2010 gnucitizen.org
  * **
  * ** This program is free software; you can redistribute it and/or modify
  * ** it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 
 #define MAXSUBSIZE 	100
 #define MAXSTRSIZE 	200
-//#define MAXIPSIZE	16
 #define BANNER 		"dnsmap 0.24 - DNS Network Mapper by pagvac (gnucitizen.org)\n\n"
 #define USAGE 		"usage: dnsmap <target-domain> [options]\noptions:\n"\
 			"-w <wordlist-file>\n-r <regular-results-file>\n-c <csv-results-file>\n"\
@@ -48,7 +47,7 @@
 #define RESULTSMSG5	"[+] csv-format results can be found on %s\n", csvResultsFilename
 #define FALSE 0
 #define TRUE 1
-#define DEBUG 0
+#define DEBUG 1
 
 // buil-in list of subdomains
 // mainly targeting English and Spanish keywords
@@ -61,6 +60,7 @@ char sub[][MAXSUBSIZE]=
 "administrator",
 "aix",
 "ap",
+"apollo",
 "archivos",
 "aula",
 "aulas",
@@ -173,6 +173,7 @@ char sub[][MAXSUBSIZE]=
 "irc",
 "ircd",
 "jabber",
+"jupiter",
 "lab",
 "laboratories",
 "laboratorio",
@@ -314,6 +315,10 @@ char sub[][MAXSUBSIZE]=
 "vpn3",
 "wap",
 "web",
+"web0",
+"web01",
+"web02",
+"web03",
 "web1",
 "web2",
 "web3",
@@ -340,5 +345,6 @@ char sub[][MAXSUBSIZE]=
 "www1",
 "www2",
 "www3",
-"xanthus"
+"xanthus",
+"zeus"
 };
