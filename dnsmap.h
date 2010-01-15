@@ -47,7 +47,7 @@
 #define RESULTSMSG5	"[+] csv-format results can be found on %s\n", csvResultsFilename
 #define FALSE 0
 #define TRUE 1
-#define DEBUG 1
+#define DEBUG 0
 
 // buil-in list of subdomains
 // mainly targeting English and Spanish keywords
