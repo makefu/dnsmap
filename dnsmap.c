@@ -69,10 +69,10 @@ int main(int argc, char *argv[]) {
  
 	printf("%s", BANNER);
 
-	/* Get the current time */
+	// get the current time
 	now = time(NULL);
 	 
-	/* timestamp format, "yyyy_mm_dd_hhmmss" */
+	// timestamp format: yyyy_mm_dd_hhmmss
 	ts = localtime(&now);
 	strftime(timestampBuf, sizeof(timestampBuf), "%Y_%m_%d_%H%M%S", ts);
 
@@ -107,8 +107,6 @@ int main(int argc, char *argv[]) {
 	}
 	*/
 	
-	//printf("%s", BANNER);
-
 	start=(int)time(NULL);
 
 	#if DEBUG
@@ -239,13 +237,11 @@ int main(int argc, char *argv[]) {
 					fprintf(fpTxtLogs,"\n");
 				if(csvResults)
 					fprintf(fpCsvLogs,"\n");	
-	    			//freeaddrinfo(res); // free the linked list
-				// ipv6 code modded from www.kame.net
+	    			freeaddrinfo(res); // free the linked list
 			} // end of if conditional
 			host=gethostbyname(dom);
 			if(host && !isIPblacklisted(inet_ntoa(*((struct in_addr *)host->h_addr_list[0])))) {
 				for(j=0;host->h_addr_list[j];++j) {
-					// TEST!!!
 					sprintf(ipstr,inet_ntoa(*((struct in_addr *)host->h_addr_list[j])),"%s");
 					if(strcmp(falsePosIpstr,ipstr)) {
 						if(j==0) {
@@ -317,15 +313,19 @@ int main(int argc, char *argv[]) {
 			printf("%s","\n");
 	
                         while(!feof(fpWords)) {
-				strncpy(dom,"",MAXSTRSIZE-strlen(dom)-1);
+				//strncpy(dom,"",MAXSTRSIZE-strlen(dom)-1);
+				for(i=0;i<strlen(dom);++i)
+					dom[i]='\0';
 				// user wants delay between DNS requests?
 				if(delay)
 					dodelay(milliseconds);
-				fscanf(fpWords,"%s",dom); 
-				if(!strcmp(dom, ""))
-					break;
-                                strncat(dom,".",MAXSTRSIZE-strlen(dom)-1);
-                                strncat(dom,argv[1],MAXSTRSIZE-strlen(dom)-1);
+				fscanf(fpWords,"%100s",dom); // wordlist subdomain not allowed to be more than 100 chars
+				#if DEBUG
+					printf("lengh of dom: %d\n",strlen(dom));				
+				#endif
+	                        strncat(dom,".",MAXSTRSIZE-strlen(dom)-1);
+	                        strncat(dom,argv[1],MAXSTRSIZE-strlen(dom)-1);
+	
 				#if DEBUG
 					printf("brute-forced domain: %s\n",dom);
 				#endif
