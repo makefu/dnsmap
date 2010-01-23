@@ -1,5 +1,3 @@
-DNSMAP README FILE
-
 INTRODUCTION
 
 dnsmap was originally released back in 2006 and was inspired by the
@@ -137,6 +135,7 @@ WORDLISTS
 
 http://packetstormsecurity.org/Crackers/wordlists/dictionaries/
 http://www.cotse.com/tools/wordlists1.htm
+http://wordlist.sourceforge.net/
 
 
 OTHER SIMILAR TOOLS - choice is freedom!
@@ -158,6 +157,9 @@ http://dnsenum.googlecode.com/files/dnsenum1.2.tar.gz
 
 ReverseRaider
 http://complemento.sourceforge.net/
+
+Knock
+http://knock.gianniamato.it/
 
 
 --
