@@ -6,4 +6,4 @@ DEPS = dnsmap.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 dnsmap: dnsmap.c dnsmap.h
-	gcc -o dnsmap dnsmap.c -I.
+	gcc -Wall -o dnsmap dnsmap.c -I.
