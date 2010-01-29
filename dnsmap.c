@@ -236,7 +236,7 @@ int main(int argc, char *argv[]) {
 			       		printf("%s address #%d: %s\n",ipver,k+1,ipv6str);
 					++ipCount;
 					if(txtResults)
-						fprintf(fpTxtLogs,"%s address: %s\n",ipver, ipv6str);
+						fprintf(fpTxtLogs,"%s address #%d: %s\n",ipver,k+1,ipv6str);
 					if(csvResults)
 						fprintf(fpCsvLogs,",%s", ipv6str);	
 		    		}
@@ -359,7 +359,7 @@ int main(int argc, char *argv[]) {
 				       		printf("%s address #%d: %s\n",ipver,k+1,ipv6str);
 						++ipCount;
 						if(txtResults)
-							fprintf(fpTxtLogs,"%s address: %s\n",ipver, ipv6str);
+							fprintf(fpTxtLogs,"%s address #%d: %s\n",ipver,k+1,ipv6str);
 						if(csvResults)
 							fprintf(fpCsvLogs,",%s", ipv6str);	
 			    		}
