@@ -30,7 +30,7 @@
 #define INTIPWARN	"[+] warning: internal IP address disclosed\n"
 #define SAMESITEXSSWARN "[+] warning: target domain might be vulnerable to \"same site\" scripting (http://snipurl.com/etbcv)\n"
 #define WILDCARDWARN	"[+] warning: the target domain might use wildcards. "\
-			"dnsmap will try to filter out false positives\n"
+			"dnsmap will filter out %s\n", falsePosIpstr
 #define INPUTERR	"[+] error: entered parameter(s) is/are too long!\n"
 #define DELAYINPUTERR	"[+] error: delay must be at least 1 second!\n"
 #define DOMAINERR	"[+] error: entered domain is not valid!\n"
@@ -394,6 +394,7 @@ char sub[][MAXSUBSIZE]=
 "intranet",
 "io",
 "ip",
+"ip6",
 "ipsec",
 "ipv6",
 "iq",
@@ -470,6 +471,7 @@ char sub[][MAXSUBSIZE]=
 "lab",
 "laboratories",
 "laboratorio",
+"laboratory",
 "labs",
 "lb",
 "lc",
