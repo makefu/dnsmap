@@ -48,7 +48,6 @@ int main(int argc, char *argv[]) {
 	char dom[MAXSTRSIZE]={'\0'}, csvResultsFilename[MAXSTRSIZE]={'\0'}, 
 		txtResultsFilename[MAXSTRSIZE]={'\0'}, wordlistFilename[MAXSTRSIZE]={'\0'},
 		ipstr[INET_ADDRSTRLEN]={'\0'}, falsePosIpstr[INET_ADDRSTRLEN]={'\0'},
-		falsePosIpstr2[INET_ADDRSTRLEN]={'\0'}, // needed for round-robin wildcard domain names
 		invalidTldIpstr[INET_ADDRSTRLEN]={'\0'};
 	void *addr;
 	char *ipver;
@@ -206,9 +205,6 @@ int main(int argc, char *argv[]) {
 			
 		printf("%s", "\n");
 		for(i=0;i<(sizeof(sub)/MAXSUBSIZE);++i) {
-			// user wants delay between DNS requests?
-			if(delay)
-				dodelay(milliseconds);				
 			strncpy(dom,sub[i],MAXSTRSIZE-strlen(dom)-1);
 			strncat(dom,".",MAXSTRSIZE-strlen(dom)-1);//TEST
 			strncat(dom,argv[1],MAXSTRSIZE-strlen(dom)-1);
@@ -294,7 +290,9 @@ int main(int argc, char *argv[]) {
 				if(csvResults && strcmp(falsePosIpstr,ipstr))
 					fprintf(fpCsvLogs,"%s","\n");
 			}
-  
+  			// user wants delay between DNS requests?
+			if(delay)
+				dodelay(milliseconds);				
 		}
 		if(txtResults)
 			fclose(fpTxtLogs);
@@ -324,9 +322,6 @@ int main(int argc, char *argv[]) {
 				//strncpy(dom,"",MAXSTRSIZE-strlen(dom)-1);
 				for(i=0;i<strlen(dom);++i)
 					dom[i]='\0';
-				// user wants delay between DNS requests?
-				if(delay)
-					dodelay(milliseconds);
 				fscanf(fpWords,"%100s",dom); // wordlist subdomain not allowed to be more than 100 chars
 				#if DEBUG
 					printf("lengh of dom: %d\n",strlen(dom));				
@@ -420,6 +415,9 @@ int main(int argc, char *argv[]) {
 		                                        fprintf(fpCsvLogs,"%s","\n");
 					}
                                 }
+				// user wants delay between DNS requests?
+				if(delay)
+					dodelay(milliseconds);
 			}
 			fclose(fpWords);
 		}
