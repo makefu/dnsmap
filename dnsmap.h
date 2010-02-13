@@ -22,7 +22,7 @@
 #define BANNER 		"dnsmap 0.30 - DNS Network Mapper by pagvac (gnucitizen.org)\n\n"
 #define USAGE 		"usage: dnsmap <target-domain> [options]\noptions:\n"\
 			"-w <wordlist-file>\n-r <regular-results-file>\n-c <csv-results-file>\n"\
-			"-d <delay-milliseconds>\n"
+			"-d <delay-millisecs>\n-f <ips-to-ignore> (useful if you're obtaining false positives)\n\n"
 #define EXAMPLES 	"e.g.:\ndnsmap target-domain.foo\n"\
 			"dnsmap target-domain.foo -w yourwordlist.txt -r /tmp/domainbf_results.txt\n"\
 			"dnsmap target-fomain.foo -r /tmp/ -d 3000\n"\
@@ -30,15 +30,17 @@
 #define INTIPWARN	"[+] warning: internal IP address disclosed\n"
 #define SAMESITEXSSWARN "[+] warning: target domain might be vulnerable to \"same site\" scripting (http://snipurl.com/etbcv)\n"
 #define WILDCARDWARN	"[+] warning: the target domain might use wildcards. "\
-			"dnsmap will filter out %s\n", falsePosIpstr
+			"%s will be filtered out from the results\n", falsePosIpStr
 #define INPUTERR	"[+] error: entered parameter(s) is/are too long!\n"
-#define DELAYINPUTERR	"[+] error: delay must be at least 1 second!\n"
+#define DELAYINPUTERR	"[+] error: delay must be between 1 and 300000 milliseconds (5 minutes)!\n"
+#define FILTIPINPUTERR	"[+] error: the maxium number of IPs to filter is 5!\n"
 #define DOMAINERR	"[+] error: entered domain is not valid!\n"
 #define CREATEFILEERR	"%s\"%s\"!\n\n", "[+] error creating results file on ", argv[(i+1)]
 #define OPENFILEERR	"%s\"%s\"!\n\n", "[+] error opening wordlist file ", wordlistFilename
 #define OPENDNSMSG	"[+] openDNS detected. good! this might help with performance\n"
 #define BUILTINMSG	"%s%s%s\n", "[+] searching (sub)domains for ", argv[1], " using built-in wordlist"
 #define EXTERNALMSG	"%s%s%s%s\n", "[+] searching (sub)domains for ", argv[1], " using ", wordlistFilename
+#define FILTERMSG	"%s%s %s\n", "[+] ", filterIpStr, "will be filtered out from the results"
 #define DELAYMSG	"%s%d%s\n", "[+] using maximum random delay of ", milliseconds, " millisecond(s) between requests"
 #define RESULTSMSG1	"[+] %d internal IP addresses disclosed\n", intIPcount
 #define RESULTSMSG2	"[+] regular-format results can be found on %s\n", txtResultsFilename
@@ -516,6 +518,7 @@ char sub[][MAXSUBSIZE]=
 "mc",
 "md",
 "me",
+"media",
 "member",
 "members",
 "mercury", // MX server?
@@ -827,6 +830,7 @@ char sub[][MAXSUBSIZE]=
 "ts",
 "tt",
 "tu",
+"tunnel",
 "tv",
 "tw",
 "tx",
