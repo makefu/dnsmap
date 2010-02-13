@@ -42,17 +42,21 @@ unsigned short int isIPblacklisted(char *);
 
 int main(int argc, char *argv[]) {
 
-	unsigned short int i=0, j=0, k=0, l=0, found=0, ipCount=0, milliseconds=0, intIPcount=0,
-		wordlist=FALSE, txtResults=FALSE, csvResults=FALSE, delay=FALSE;
+	unsigned short int i=0, j=0, k=0, l=0, found=0, ipCount=0, filtIPcount=0, milliseconds=10, intIPcount=0,
+		wordlist=FALSE, txtResults=FALSE, csvResults=FALSE,
+		delay=TRUE, filter=FALSE; //, skipResolve=FALSE;
 	unsigned long int start=0, end=0;
 	char dom[MAXSTRSIZE]={'\0'}, csvResultsFilename[MAXSTRSIZE]={'\0'}, 
 		txtResultsFilename[MAXSTRSIZE]={'\0'}, wordlistFilename[MAXSTRSIZE]={'\0'},
-		ipstr[INET_ADDRSTRLEN]={'\0'}, falsePosIpstr[INET_ADDRSTRLEN]={'\0'},
+		ipstr[INET_ADDRSTRLEN]={'\0'}, falsePosIpStr[INET_ADDRSTRLEN]={'\0'},
+		tmpIpStr[100][INET_ADDRSTRLEN]={{'\0'}},
+		filterIpStr[INET_ADDRSTRLEN]={'\0'},
+		filterIPs[5][INET_ADDRSTRLEN]={{'\0'}},
 		invalidTldIpstr[INET_ADDRSTRLEN]={'\0'};
 	void *addr;
-	char *ipver;
+	char *ipver, *strP;
 
-	struct hostent *host;
+	struct hostent *h;
 	// start of IPv6 stuff
     	struct addrinfo hints, *res, *p;
     	int status;
@@ -148,7 +152,7 @@ int main(int argc, char *argv[]) {
 
 		// save results in file using CSV format	
 		if(!strcmp(argv[i],"-c")) {	
-	       		// contruct path where csv results file will be created 
+	       		// contruct path where CSV results file will be created 
 			csvResults=TRUE;	
 			strncpy(csvResultsFilename, argv[(i+1)], MAXSTRSIZE-strlen(csvResultsFilename)-1);
  		 	fpCsvLogs=fopen(csvResultsFilename, "a");
@@ -178,12 +182,38 @@ int main(int argc, char *argv[]) {
 
 		// delay between subdomain resolution requests
 		if(!strcmp(argv[i],"-d")) {
-			if(atoi(argv[(i+1)])<1) {
+			if(atoi(argv[(i+1)])<1 || atoi(argv[(i+1)])>300000) {  // delay must be between 1 ms and 5 minutes
 				printf("%s", DELAYINPUTERR);
 				exit(1);
 			}						
 			delay=TRUE;
 			milliseconds=atoi(argv[(i+1)]);
+		}
+		// filter out user-provided IP(s)
+		if(!strcmp(argv[i],"-f")) {
+		        for(filtIPcount=1,j=0;argv[i+1][j]!='\0';++j)
+       		        	if(argv[i+1][j]==',')
+               		         	++filtIPcount;
+			#if DEBUG			
+				printf("%d IP(s) to filter found\nParsing ...\n", filtIPcount);
+			#endif
+        		if(filtIPcount<=5) {
+               	 		strP=strtok(argv[i+1],",");
+                		for(j=0;strP;) {
+                        		if(strlen(strP)<INET_ADDRSTRLEN) {
+                                		strncpy(filterIPs[j],strP,INET_ADDRSTRLEN);
+						#if DEBUG
+	                                		printf("%s\n",filterIPs[j]);
+						#endif
+                                		++j;
+                        		}
+                        		strP=strtok(NULL," ,");
+                		}
+        		}
+			else {
+				printf(FILTIPINPUTERR);
+				exit(1);
+			}
 		}
 	}
 
@@ -194,17 +224,30 @@ int main(int argc, char *argv[]) {
 			printf("%s",OPENDNSMSG);
 
 		// wildcard detection
-		//void ModifyArray( int (&arr)[80][80] );
-		wildcarDetect(argv[1],falsePosIpstr);
-		if(strcmp(invalidTldIpstr,falsePosIpstr))
-			printf(WILDCARDWARN);
+		wildcarDetect(argv[1],falsePosIpStr);
 
+		if(strcmp(invalidTldIpstr,falsePosIpStr)) {
+			// TEST / TODO get multiple resolved IPs for wildcarded domains that return
+			// different IPs after being resolved multiple times (round robin)
+			/*
+			for(i=0;i<100;++i) {
+				wildcarDetect(argv[1],tmpIpStr[i]);
+				//if(i>0 && (strcmp(tmpIpStr[i],tmpIpStr[i-1]))) {
+					printf("TEST %d: %s\n",i,tmpIpStr[i]);				
+				//}
+			}
+			*/
+			// end TEST
+		}
+		if(strcmp(invalidTldIpstr,falsePosIpStr))
+			printf(WILDCARDWARN);
 		printf(BUILTINMSG);
 		if(milliseconds>=1)
                 	printf(DELAYMSG);	
 			
 		printf("%s", "\n");
 		for(i=0;i<(sizeof(sub)/MAXSUBSIZE);++i) {
+			//skipResolve=FALSE;
 			strncpy(dom,sub[i],MAXSTRSIZE-strlen(dom)-1);
 			strncat(dom,".",MAXSTRSIZE-strlen(dom)-1);//TEST
 			strncat(dom,argv[1],MAXSTRSIZE-strlen(dom)-1);
@@ -243,11 +286,30 @@ int main(int argc, char *argv[]) {
 					fprintf(fpCsvLogs,"\n");	
 	    			freeaddrinfo(res); // free the linked list
 			} // end of if conditional
-			host=gethostbyname(dom);
-			if(host && !isIPblacklisted(inet_ntoa(*((struct in_addr *)host->h_addr_list[0])))) {
-				for(j=0;host->h_addr_list[j];++j) {
-					sprintf(ipstr,inet_ntoa(*((struct in_addr *)host->h_addr_list[j])),"%s");
-					if(strcmp(falsePosIpstr,ipstr)) {
+			h=gethostbyname(dom);
+			//sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[0])),"%s");
+			//for(j=0;h->h_addr_list[j];++j) {
+			//	sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[j])),"%s");
+			//	if(isIPblacklisted(ipstr)) {
+			//		skipResolve=TRUE;
+			//		break;
+			//	}
+			//}
+			//if(h && !skipResolve) {
+			//if(h && !isIPblacklisted(ipstr)) {
+			if(h && !isIPblacklisted(inet_ntoa(*((struct in_addr *)h->h_addr_list[0])))) {
+				for(j=0;h->h_addr_list[j];++j) {
+					sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[j])),"%s");
+					//TEST
+					for(k=0;k<filtIPcount;++k) {
+						if(strcmp(filterIPs[k],ipstr)==0) {
+							filter=TRUE;
+							break;
+						}
+					}
+					// END OF TEST
+					//if(strcmp(falsePosIpStr,ipstr) && strcmp(filterIpStr,ipstr)) {
+					if(strcmp(falsePosIpStr,ipstr) && filter==FALSE) {
 						if(j==0) {
 							++found;
 							printf("%s\n", dom);
@@ -261,34 +323,37 @@ int main(int argc, char *argv[]) {
 						++ipCount;
 
 						if(isPrivateIP(ipstr)) {
-						//if(isPrivateIP(inet_ntoa(*((struct in_addr *)host->h_addr_list[j])))) {
+						//if(isPrivateIP(inet_ntoa(*((struct in_addr *)h->h_addr_list[j])))) {
 							printf("%s",INTIPWARN);
 							++intIPcount;						
 						}
-						if(!strcmp(ipstr,"127.0.0.1") && strcmp(falsePosIpstr,ipstr)) {	
-						//if(!strcmp(inet_ntoa(*((struct in_addr *)host->h_addr_list[j])),
+						if(!strcmp(ipstr,"127.0.0.1") && strcmp(falsePosIpStr,ipstr)) {	
+						//if(!strcmp(inet_ntoa(*((struct in_addr *)h->h_addr_list[j])),
 							//"127.0.0.1"))
 							printf("%s",SAMESITEXSSWARN);
 						}
 						if(txtResults) {
 							//fprintf(fpCsvLogs,",%s",
-							//	inet_ntoa(*((struct in_addr *)host->h_addr_list[j])));	
+							//	inet_ntoa(*((struct in_addr *)h->h_addr_list[j])));	
 							fprintf(fpTxtLogs,"IP address #%d: %s\n", j+1, ipstr);
-							if(isPrivateIP(ipstr) && strcmp(falsePosIpstr,ipstr))
+							if(isPrivateIP(ipstr) && strcmp(falsePosIpStr,ipstr))
 								fprintf(fpTxtLogs,"%s",INTIPWARN);
-							if(!strcmp(ipstr,"127.0.0.1") && strcmp(falsePosIpstr,ipstr))
+							if(!strcmp(ipstr,"127.0.0.1") && strcmp(falsePosIpStr,ipstr))
 								fprintf(fpTxtLogs,"%s",SAMESITEXSSWARN);
 						}
-						if(csvResults && strcmp(falsePosIpstr,ipstr))
+						if(csvResults && strcmp(falsePosIpStr,ipstr))
 							fprintf(fpCsvLogs,",%s",ipstr);
-					}	
+					}
 				}	
-				if(strcmp(falsePosIpstr,ipstr))				
+				//if(strcmp(falsePosIpStr,ipstr) && strcmp(filterIpStr,ipstr)) {
+				if(strcmp(falsePosIpStr,ipstr) && filter==FALSE) {				
 					printf("%s", "\n");
-				if(txtResults && strcmp(falsePosIpstr,ipstr))
-					fprintf(fpTxtLogs,"%s","\n");
-				if(csvResults && strcmp(falsePosIpstr,ipstr))
-					fprintf(fpCsvLogs,"%s","\n");
+					if(txtResults)
+						fprintf(fpTxtLogs,"%s","\n");
+					if(csvResults)
+						fprintf(fpCsvLogs,"%s","\n");
+				}
+				filter=FALSE;
 			}
   			// user wants delay between DNS requests?
 			if(delay)
@@ -307,8 +372,8 @@ int main(int argc, char *argv[]) {
 			printf("%s",OPENDNSMSG);
 
 		// wildcard detection
-		wildcarDetect(argv[1],falsePosIpstr);
-		if(strcmp(invalidTldIpstr,falsePosIpstr))
+		wildcarDetect(argv[1],falsePosIpStr);
+		if(strcmp(invalidTldIpstr,falsePosIpStr))
 			printf(WILDCARDWARN);
 
 		fpWords=fopen(wordlistFilename, "r");	
@@ -368,12 +433,12 @@ int main(int argc, char *argv[]) {
 					// ipv6 code modded from www.kame.net
 				} // end of if conditional
 
-				host=gethostbyname(dom);
+				h=gethostbyname(dom);
 
-				if(host && !isIPblacklisted(inet_ntoa(*((struct in_addr *)host->h_addr_list[0])))) {
-                                        for(j=0;host->h_addr_list[j];++j) {
-						sprintf(ipstr,inet_ntoa(*((struct in_addr *)host->h_addr_list[j])),"%s");	                                        
-						if(strcmp(falsePosIpstr,ipstr)) {
+				if(h && !isIPblacklisted(inet_ntoa(*((struct in_addr *)h->h_addr_list[0])))) {
+                                        for(j=0;h->h_addr_list[j];++j) {
+						sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[j])),"%s");	                                        
+						if(strcmp(falsePosIpStr,ipstr) && strcmp(filterIpStr,ipstr)) {
 							if(j==0) {
 								++found;
 								printf("%s\n",dom);
@@ -391,23 +456,23 @@ int main(int argc, char *argv[]) {
 							++ipCount;
 						}
 
-						if(isPrivateIP(ipstr) && strcmp(falsePosIpstr,ipstr)) {
+						if(isPrivateIP(ipstr) && strcmp(falsePosIpStr,ipstr)) {
 							printf("%s",INTIPWARN);
 							++intIPcount;						
 						}
-						if(!strcmp(ipstr,"127.0.0.1") && strcmp(falsePosIpstr,ipstr))
+						if(!strcmp(ipstr,"127.0.0.1") && strcmp(falsePosIpStr,ipstr))
 							printf("%s",SAMESITEXSSWARN);
-	                                        if(txtResults && strcmp(falsePosIpstr,ipstr)) {
+	                                        if(txtResults && strcmp(falsePosIpStr,ipstr)) {
 							fprintf(fpTxtLogs,"IP address #%d: %s\n",j+1,ipstr);
 							if(isPrivateIP(ipstr))
 								fprintf(fpTxtLogs,"%s",INTIPWARN);
 							if(!strcmp(ipstr,"127.0.0.1"))
 								fprintf(fpTxtLogs,"%s",SAMESITEXSSWARN);
 						}
-						if(csvResults && strcmp(falsePosIpstr,ipstr))
+						if(csvResults && strcmp(falsePosIpStr,ipstr))
 							fprintf(fpCsvLogs,",%s",ipstr);	
                                         }
-					if(strcmp(falsePosIpstr,ipstr)) {
+					if(strcmp(falsePosIpStr,ipstr) && strcmp(filterIpStr,ipstr) && strcmp(filterIpStr,ipstr)) {
 							printf("%s", "\n");
 		                                if(txtResults)
 							fprintf(fpTxtLogs,"%s","\n");
@@ -476,16 +541,16 @@ unsigned short int wildcarDetect(char *dom, char *ipstr) {
 	#endif
 	
 	// random subdomain resolves, thus wildcards are enabled
-	h=gethostbyname(s);
-	if(h) {
+	h=gethostbyname(s); // replace with getaddrinfo() ?
+	if(h) { /*
 		for(i=0;h->h_addr_list[i];++i) {
-			sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[i])),"%s");	                                  
-			#if DEBUG
-				printf("wildcard domain\'s IP address #%d: %s\n",i+1,ipstr[0]);
-			#endif
-		}
+		*/
+			//sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[i])),"%s");	                              
+		sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[0])),"%s");
+		#if DEBUG
+			printf("wildcard domain\'s IP address: %s\n",ipstr);
+		#endif
 		return TRUE;
-
 	}
 	else
 		return FALSE;
@@ -610,25 +675,11 @@ unsigned short int isValidDomain(char *d) {
 		printf("random subdomain for wildcard testing: %s\n",s);
 	#endif
 	
-	// random subdomain resolves, thus wildcards are enabled
-	h=gethostbyname(s);
-	if(h) {
-		for(j=0;h->h_addr_list[j];++j) {
-			sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[j])),"%s");	                                  
-
-		}
-		/*
-		if(j>1) {
-			#if DEBUG
-				// some domains like proboards.com return more than 1 IP address
-				// when resolving random subdomains (wildcards are enabled)
-				printf("wildcard domain\'s number of IP address(es): %d"
-					" (this causes dnsmap to produce false positives)\n",j);
-			#endif
-			return FALSE;
-		}
-		*/
-	}
+	/*h=gethostbyname(s);
+	if(h)
+		return TRUE;
+	else 
+		return FALSE; */
 
 	return TRUE;
 
@@ -643,7 +694,8 @@ unsigned short int isIPblacklisted(char *ip) {
 	char ips[][INET_ADDRSTRLEN]={
 					"81.200.64.50",
 					"67.215.66.132",
-					"1.2.3.4"	// add your false positive IPs here
+					"1.2.3.4",
+					"0.0.0.0"	// add your false positive IPs here
 					};
 
 	//for(i=0;ips[i];++i) {
