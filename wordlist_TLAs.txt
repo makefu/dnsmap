@@ -1,3 +1,5 @@
+# three-letter acronyms wordlist created by pagvac for dnsmap
+# GNUCITIZEN.org
 aaa
 aab
 aac
