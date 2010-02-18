@@ -24,6 +24,7 @@ I'm happy to say that dnsmap was included in Backtrack 2, 3 and 4 and has
 been reviewed by the community:
 
 http://backtrack.offensive-security.com/index.php?title=Tools
+http://www.networkworld.com/community/node/57543
 http://www.linuxhaxor.net/2007/07/14/backtrack-2-information-gathering-all-dnsmap/
 http://www.darknet.org.uk/2009/03/dnsmap-022-released-subdomain-bruteforcing-tool/
 http://www.gnucitizen.org/blog/new-version-of-dnsmap-out/
@@ -133,7 +134,7 @@ interfering with your online experience. i.e.: killing your bandwidth
 Subdomain bruteforcing with 0.8 seconds delay, saving results in regular and CSV format,
 filtering 2 user-provided IP and using a user-supplied wordlist:
 
-$ ./dnsmap live.com -d 800 -r /tmp/ -c /tmp/ -i 65.55.206.154,65.55.24.100 -w ./wordlist_TLAs.txt
+$ ./dnsmap targetdomain.foo -d 800 -r /tmp/ -c /tmp/ -i 10.55.206.154,10.55.24.100 -w ./wordlist_TLAs.txt
 
 For bruteforcing a list of target domains in a bulk fashion use the bash script provided. e.g.:
 
