@@ -300,7 +300,10 @@ int main(int argc, char *argv[]) {
 								printf("%s found and ignored\n",filterIPs[k]);
 							#endif
 							filter=TRUE;
-							break;
+							if(h->h_addr_list[j+1])
+								++j;
+							else
+								break;
 						}
 					}
 					// END OF TEST
@@ -436,9 +439,9 @@ int main(int argc, char *argv[]) {
 						sprintf(ipstr,inet_ntoa(*((struct in_addr *)h->h_addr_list[j])),"%s");
 						//TEST
 						for(k=0;k<filtIPcount;++k) {
-							if(j!=0 && strcmp(wildcardIpStr,filterIPs[k])) {
+							if(strcmp(filterIPs[k],ipstr)==0) { // filtered IP found
 								// 1st IP of array - weird output formatting bug
-								if(j!=0) {
+								if(j!=0 && strcmp(wildcardIpStr,filterIPs[k])) {
 									printf("\n");
 								    	if(txtResults)
 										fprintf(fpTxtLogs, "%s", "\n");
@@ -449,14 +452,10 @@ int main(int argc, char *argv[]) {
 									printf("%s found and ignored\n",filterIPs[k]);
 								#endif
 								filter=TRUE;
-								if(found!=0) {
-									printf("%s", "\n");
-								    	if(txtResults)
-										fprintf(fpTxtLogs, "%s\n", dom);
-									if(csvResults)
-										fprintf(fpCsvLogs, "%s", dom);
-								}
-								break;
+								if(h->h_addr_list[j+1])
+									++j;
+								else
+									break;
 							}
 						}
 						// END OF TEST                                      
