@@ -1,10 +1,12 @@
-XX/01/2010: dnsmap 0.24 released at www.gnucitizen.org
+20/02/2010: dnsmap 0.30 released at www.gnucitizen.org
 * IPv6 support
 * Makefile included
 * delay option (-d) added. This is useful in cases where dnsmap is killing your bandwidth
+* ignore IPs option (-i) added. This allows ignoring user-supplied IPs from the results. Useful for domains which cause dnsmap to produce false positives
 * changes made to make dnsmap compatible with OpenDNS
 * disclosure of internal IP addresses (RFC 1918) are reported
 * updated built-in wordlist
+* included a standalone three-letter acronym (TLA) subdomains wordlist
 * domains susceptible to "same site" scripting (http://snipurl.com/etbcv) are reported
 * completion time is now displayed to the user
 * mechanism to attempt to bruteforce wildcard-enabled domains
