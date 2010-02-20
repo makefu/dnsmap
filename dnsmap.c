@@ -642,12 +642,13 @@ unsigned short int isPrivateIP(char *ip) {
 // return true if domain is valid, false otherwise
 unsigned short int isValidDomain(char *d) {
 
-	unsigned int i=0;
+	unsigned int i=0, j=0;
 	char *tld;
 	size_t len;
-
         char strTmp[30]={'\0'},s[MAXSTRSIZE]={'\0'};
         unsigned short int n=0,max=0;
+
+	struct hostent *h;
 
 	if(strlen(d)<4) // smallest possible domain provided. e.g. a.pl
 		return 0;
@@ -699,11 +700,21 @@ unsigned short int isValidDomain(char *d) {
 		printf("random subdomain for wildcard testing: %s\n",s);
 	#endif
 	
-	/*h=gethostbyname(s);
-	if(h)
-		return TRUE;
-	else 
-		return FALSE; */
+	// some domains like proboards.com return more than 1 IP address
+	// when resolving random subdomains (wildcards are enabled)
+	h=gethostbyname(s);
+        if(h) {
+                for(j=0;h->h_addr_list[j];++j)
+			inet_ntoa(*((struct in_addr *)h->h_addr_list[j]));
+                if(j>1) {
+                        #if DEBUG
+    
+                                printf("wildcard domain\'s number of IP address(es): %d"
+                                        " (this causes dnsmap to produce false positives)\n",j);
+                        #endif
+                        return FALSE;
+                }
+        }
 
 	return TRUE;
 
