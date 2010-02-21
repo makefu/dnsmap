@@ -25,9 +25,9 @@ been reviewed by the community:
 
 http://backtrack.offensive-security.com/index.php?title=Tools
 http://www.networkworld.com/community/node/57543
+http://forums.remote-exploit.org/tutorials-guides/12746-dnsmap-tutorial.html
 http://www.linuxhaxor.net/2007/07/14/backtrack-2-information-gathering-all-dnsmap/
 http://www.darknet.org.uk/2009/03/dnsmap-022-released-subdomain-bruteforcing-tool/
-http://www.gnucitizen.org/blog/new-version-of-dnsmap-out/
 
 
 COMPILING
