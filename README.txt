@@ -43,7 +43,9 @@ $ gcc -Wall dnsmap.c -o dnsmap
 
 INSTALLATION
 
-Example of manual installation:
+# make install
+
+Or:
 
 # cp ./dnsmap /usr/local/bin/dnsmap
 
