@@ -727,7 +727,7 @@ unsigned short int isIPblacklisted(char *ip) {
 	// this could be caused by your ISP returning a captive portal search page when
 	// when requesting invalid domains on your browser
 	char ips[][INET_ADDRSTRLEN]={
-					"81.200.64.50",
+					"81.200.64.50", // Virgin Media broadband
 					"67.215.66.132",
 					"1.2.3.4",
 					"0.0.0.0"	// add your false positive IPs here
