@@ -1,7 +1,6 @@
 #!/bin/bash
 if [[ $# -ne 1 && $# -ne 2 && $# -ne 3 ]]
 then
-	echo "$#";
 	echo "usage: `basename $0` <domains-file> [results-path] [wordlist-path]";
 	echo "e.g.:";
 	echo "`basename $0` domains.txt";
